@@ -1423,6 +1423,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: lamp 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8484191470331626544, guid: 6cdd7b90ff98bde4ba25d3a32c09e8ef, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3871,7 +3875,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 919132148345141343}
   serializedVersion: 4
-  m_Mass: 4.07
+  m_Mass: 47.87
   m_Drag: 0.01
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -3925,14 +3929,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40649f272ac5ef84dbf5740e9f6d341f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 5
-  runSpeed: 11.8
+  walkSpeed: 6
+  runSpeed: 12
   jumpForce: 50
-  sneakSpeed: 2
+  sneakSpeed: 4
   groundCheck: {fileID: 1406299350}
   newspaperPrefab: {fileID: 388757551}
   throwPoint: {fileID: 447122495}
-  throwForce: 10
+  throwForce: 13
   throwHeightOffset: 1.5
 --- !u!95 &5866666021767538857
 Animator:

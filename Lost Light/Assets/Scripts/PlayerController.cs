@@ -175,6 +175,15 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Misc
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isJumping = false;
+            anim_.SetBool("isJumping", false);
+        }
+    }
+
     void OnTriggerEnter(Collider other)
     {
         StreetLampController lamp = other.GetComponent<StreetLampController>();
