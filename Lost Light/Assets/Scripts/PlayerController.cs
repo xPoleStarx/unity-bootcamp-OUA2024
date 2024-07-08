@@ -12,10 +12,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float sneakSpeed = 2;
 
     [SerializeField] private Transform groundCheck;
-    [SerializeField] private GameObject newspaperPrefab; // Gazete prefab'i
-    [SerializeField] private Transform throwPoint; // Gazetenin fırlatılacağı nokta
-    [SerializeField] private float throwForce = 10f; // Fırlatma kuvveti
-    [SerializeField] private float throwHeightOffset = 1.5f; // Gazetenin fırlatılma yüksekliği
+    [SerializeField] private GameObject newspaperPrefab;
+    [SerializeField] private Transform throwPoint;
+    [SerializeField] private float throwForce = 10f;
+    [SerializeField] private float throwHeightOffset = 1.5f;
     #endregion
 
     #region Variables
@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
     bool isRunning = false;
     bool isJumping = false;
     bool isSneaking = false;
-    StreetLampController currentStreetLamp; // Etkileşime geçilen sokak lambası
+    StreetLampController currentStreetLamp;
     #endregion
 
     #region Main
@@ -44,8 +44,8 @@ public class PlayerController : MonoBehaviour
         runAction = playerInput.actions.FindAction("Run");
         jumpAction = playerInput.actions.FindAction("Jump");
         sneakAction = playerInput.actions.FindAction("Sneak");
-        throwAction = playerInput.actions.FindAction("Throw"); // Yeni aksiyon ekle
-        toggleLampAction = playerInput.actions.FindAction("ToggleLamp"); // Sokak lambasını açma/kapama aksiyonu
+        throwAction = playerInput.actions.FindAction("Throw");
+        toggleLampAction = playerInput.actions.FindAction("ToggleLamp");
 
         if (rb == null) { Debug.LogError("No Rigidbody component found on " + gameObject.name); }
         toggleLampAction.performed += ctx => ToggleNearestLamp();
@@ -57,8 +57,8 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
         HandleJump();
         Look();
-        UpdateThrowPoint(); // Fırlatma noktasını güncelle
-        HandleThrow(); // Fırlatma işlemi
+        UpdateThrowPoint();
+        HandleThrow();
     }
     #endregion
 
@@ -132,7 +132,6 @@ public class PlayerController : MonoBehaviour
     {
         if (throwPoint != null)
         {
-            // Karakterin konumu ve yönü ile aynı hizaya getirme
             throwPoint.position = transform.position + transform.forward * 1f + Vector3.up * throwHeightOffset; // 1 birim önde ve yukarıda
             throwPoint.rotation = transform.rotation;
         }

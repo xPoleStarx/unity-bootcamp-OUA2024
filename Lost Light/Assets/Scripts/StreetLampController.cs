@@ -3,15 +3,15 @@ using UnityEngine.InputSystem;
 
 public class StreetLampController : MonoBehaviour
 {
-    [SerializeField] private Light lampLight; // Point Light referansý
+    [SerializeField] private Light lampLight;
     private bool isLampOn = false;
-    private GameObject player; // Oyuncunun referansý
+    private GameObject player;
 
-    public float activationDistance = 2.0f; // Lambanýn aktif olacaðý mesafe
+    public float activationDistance = 2.0f;
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player"); // Oyuncunun tag'i "Player" olmalý
+        player = GameObject.FindGameObjectWithTag("Player");
         lampLight = GetComponentInChildren<Light>();
     }
 
