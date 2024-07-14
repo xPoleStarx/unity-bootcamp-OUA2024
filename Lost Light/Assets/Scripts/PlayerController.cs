@@ -18,7 +18,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float throwHeightOffset = 1.5f;
     #endregion
 
-
     #region Variables
     PlayerInput playerInput;
     InputAction moveAction, runAction, jumpAction, sneakAction, throwAction, toggleLampAction;
@@ -26,18 +25,12 @@ public class PlayerController : MonoBehaviour
     Rigidbody rb;
     StreetLampController currentStreetLamp;
 
-
-
     private Vector2 move_Direction;
     private IState current_State;
 
     private bool isWalking, isRunning, isJumping, isSneaking = false;
     private bool isGrounded;
-
     #endregion
-
-
-
 
     #region Main
     private void Awake()
@@ -49,11 +42,6 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-
-
-
-
-
         moveAction = playerInput.actions.FindAction("Move");
         runAction = playerInput.actions.FindAction("Run");
         jumpAction = playerInput.actions.FindAction("Jump");
@@ -76,16 +64,7 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
-
-
-
-
-
-
-
     #region Functions
-
-
     void HandleInput()
     {
         isRunning = runAction.ReadValue<float>() > 0;
@@ -101,11 +80,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-
-
-    // -----------------  Hareket ----------------------------------------------------------------
-
+    public bool IsSneaking()
+    {
+        return isSneaking;
+    }
 
     void MovePlayer()
     {
@@ -147,10 +125,6 @@ public class PlayerController : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
     }
 
-
-
-    // -----------------  Zıplama  ----------------------------------------------------------------
-
     void HandleJump()
     {
         if (jumpAction.triggered && !isJumping && rb != null)
@@ -160,14 +134,6 @@ public class PlayerController : MonoBehaviour
             anim_.SetBool("isJumping", true);
         }
     }
-
-
-
-
-
-
-    // -----------------  Gazete ----------------------------------------------------------------
-
 
     void UpdateThrowPoint()
     {
@@ -191,12 +157,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-
-
-
-    // -----------------  Lamba ----------------------------------------------------------------
-
     void ToggleNearestLamp()
     {
         StreetLampController[] lamps = FindObjectsOfType<StreetLampController>();
@@ -219,19 +179,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-
     #endregion
 
-
-
-
-
-
-
     #region Misc
-
-
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
