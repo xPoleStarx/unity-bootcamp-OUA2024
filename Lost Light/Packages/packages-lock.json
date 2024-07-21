@@ -9,6 +9,17 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.barracuda": {
+      "version": "https://github.com/Unity-Technologies/barracuda-release.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.burst": "1.6.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0"
+      },
+      "hash": "557e93387683363215675397db49479d42d99174"
+    },
     "com.unity.burst": {
       "version": "1.8.15",
       "depth": 1,
@@ -50,7 +61,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.feature.development": {
-      "version": "1.0.1",
+      "version": "1.0.2",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
@@ -89,7 +100,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.inputsystem": {
-      "version": "1.7.0",
+      "version": "1.8.2",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -103,26 +114,6 @@
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
-    },
-    "com.unity.ml-agents": {
-      "version": "file:C:/Users/seyfullahkorkmaz/MLAgent-OUA/ml-agents/com.unity.ml-agents",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.unity.sentis": "1.2.0-exp.2",
-        "com.unity.modules.imageconversion": "1.0.0",
-        "com.unity.modules.jsonserialize": "1.0.0",
-        "com.unity.modules.physics": "1.0.0"
-      }
-    },
-    "com.unity.ml-agents.extensions": {
-      "version": "file:C:/Users/seyfullahkorkmaz/MLAgent-OUA/ml-agents/com.unity.ml-agents.extensions",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.unity.ml-agents": "3.0.0-exp.1",
-        "com.unity.modules.physics": "1.0.0"
-      }
     },
     "com.unity.performance.profile-analyzer": {
       "version": "1.2.2",
@@ -143,7 +134,7 @@
       }
     },
     "com.unity.render-pipelines.universal": {
-      "version": "14.0.11",
+      "version": "17.0.3",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
@@ -169,17 +160,6 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-    "com.unity.sentis": {
-      "version": "1.2.0-exp.2",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.burst": "1.8.4",
-        "com.unity.modules.jsonserialize": "1.0.0",
-        "com.unity.modules.imageconversion": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.settings-manager": {
       "version": "2.0.1",
       "depth": 2,
@@ -188,7 +168,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.shadergraph": {
-      "version": "14.0.11",
+      "version": "17.0.3",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
@@ -217,17 +197,8 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.unity.textmeshpro": {
-      "version": "3.0.9",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.ugui": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.timeline": {
-      "version": "1.7.6",
+      "version": "1.8.7",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -239,7 +210,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ugui": {
-      "version": "1.0.0",
+      "version": "2.0.0",
       "depth": 0,
       "source": "builtin",
       "dependencies": {

@@ -1,4 +1,4 @@
-using UnityEngine;
+/*using UnityEngine;
 using UnityEngine.AI;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
@@ -64,3 +64,4 @@ public class NPCRouteAgent : Agent
         }
     }
 }
+*/

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Microsoft.ML.OnnxRuntime.Tensors;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,17 +11,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float runSpeed = 10;
     [SerializeField] float jumpForce = 5;
     [SerializeField] float sneakSpeed = 2;
-
     [SerializeField] private Transform groundCheck;
     [SerializeField] private GameObject newspaperPrefab;
     [SerializeField] private Transform throwPoint;
     [SerializeField] private float throwForce = 10f;
     [SerializeField] private float throwHeightOffset = 1.5f;
+    [SerializeField] private GameObject cube;
     #endregion
 
     #region Variables
     PlayerInput playerInput;
-    InputAction moveAction, runAction, jumpAction, sneakAction, throwAction, toggleLampAction;
+    InputAction moveAction, runAction, jumpAction, sneakAction, throwAction, toggleLampAction, drawAction;
     Animator anim_;
     Rigidbody rb;
     StreetLampController currentStreetLamp;
@@ -30,6 +31,10 @@ public class PlayerController : MonoBehaviour
 
     private bool isWalking, isRunning, isJumping, isSneaking = false;
     private bool isGrounded;
+    private Texture2D texture;
+    private Vector2 previousMousePosition;
+    private bool isDrawing;
+    private NumberRecognizer recognizer;
     #endregion
 
     #region Main
@@ -38,6 +43,11 @@ public class PlayerController : MonoBehaviour
         playerInput = GetComponent<PlayerInput>();
         anim_ = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+        recognizer = GetComponent<NumberRecognizer>(); // NumberRecognizer bileşenini alın
+        if (recognizer == null)
+        {
+            recognizer = gameObject.AddComponent<NumberRecognizer>(); // NumberRecognizer bileşenini ekleyin
+        }
     }
 
     void Start()
@@ -48,9 +58,14 @@ public class PlayerController : MonoBehaviour
         sneakAction = playerInput.actions.FindAction("Sneak");
         throwAction = playerInput.actions.FindAction("Throw");
         toggleLampAction = playerInput.actions.FindAction("ToggleLamp");
+        drawAction = playerInput.actions.FindAction("Draw");
 
         if (rb == null) { Debug.LogError("No Rigidbody component found on " + gameObject.name); }
         toggleLampAction.performed += ctx => ToggleNearestLamp();
+
+        texture = new Texture2D(28, 28);
+        previousMousePosition = Vector2.zero;
+        isDrawing = false;
     }
 
     void Update()
@@ -61,6 +76,7 @@ public class PlayerController : MonoBehaviour
         Look();
         UpdateThrowPoint();
         HandleThrow();
+        HandleDraw();
     }
     #endregion
 
@@ -179,6 +195,82 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void HandleDraw()
+    {
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            isDrawing = true;
+            previousMousePosition = Mouse.current.position.ReadValue();
+        }
+
+        if (Mouse.current.leftButton.isPressed && isDrawing)
+        {
+            Vector2 currentMousePosition = Mouse.current.position.ReadValue();
+            DrawLine(previousMousePosition, currentMousePosition, Color.white);
+            previousMousePosition = currentMousePosition;
+        }
+
+        if (Mouse.current.leftButton.wasReleasedThisFrame && isDrawing)
+        {
+            isDrawing = false;
+            int number = RecognizeDrawnNumber();
+            ChangeCubeColor(number);
+            ClearTexture();
+        }
+    }
+
+    void DrawLine(Vector2 start, Vector2 end, Color color)
+    {
+        for (float t = 0.0f; t < 1.0f; t += 0.01f)
+        {
+            int x = (int)Mathf.Lerp(start.x, end.x, t);
+            int y = (int)Mathf.Lerp(start.y, end.y, t);
+            texture.SetPixel(x, y, color);
+        }
+        texture.Apply();
+    }
+
+    int RecognizeDrawnNumber()
+    {
+        Tensor<float> inputTensor = new DenseTensor<float>(new[] { 1, 1, 28, 28 });
+        for (int y = 0; y < 28; y++)
+        {
+            for (int x = 0; x < 28; x++)
+            {
+                inputTensor[0, 0, y, x] = texture.GetPixel(x, y).grayscale;
+            }
+        }
+        return recognizer.RecognizeNumber(inputTensor);
+    }
+
+    void ChangeCubeColor(int number)
+    {
+        Color color = Color.white;
+        switch (number)
+        {
+            case 1:
+                color = Color.yellow;
+                break;
+            case 2:
+                color = Color.blue;
+                break;
+            case 3:
+                color = Color.red;
+                break;
+        }
+        cube.GetComponent<Renderer>().material.color = color;
+    }
+
+    void ClearTexture()
+    {
+        Color[] clearColors = new Color[28 * 28];
+        for (int i = 0; i < clearColors.Length; i++)
+        {
+            clearColors[i] = Color.black;
+        }
+        texture.SetPixels(clearColors);
+        texture.Apply();
+    }
     #endregion
 
     #region Misc
