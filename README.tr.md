@@ -19,7 +19,7 @@
 
 ## Oyun Açıklaması
 
-_Kayıp Işık, Viktoryen Londra'nın karanlık sokaklarında geçen hikaye odaklı bir macera oyunudur ve oyuncuları duygusal bir yolculuğa çıkarır. Kayıp kız kardeşini arayan genç bir lambacı gözünden anlatılan oyun, oyuncuları umut, kayıp ve kardeş bağları temalarını içeren etkileyici bir anlatı ile sarar. Dönemin atmosferini yansıtan detaylı görseller ile zengin bir deneyim sunan oyun, gazete dağıtımı, lambacılık, platforming ve bulmaca çözme gibi oyun mekanikleriyle güçlendirilmiştir. Oyuncular, protagonistin mücadelelerini gözlemleyecek ve Londra’nın karanlık sırlarını açığa çıkarmak ve kaybolmuş kız kardeşi bulmak için ipuçlarını takip edecektir._
+_Lost Light, Viktoryen Londra'nın karanlık sokaklarında geçen hikaye odaklı bir macera oyunudur ve oyuncuları duygusal bir yolculuğa çıkarır. Kayıp kız kardeşini arayan genç bir lambacı gözünden anlatılan oyun, oyuncuları umut, kayıp ve kardeş bağları temalarını içeren etkileyici bir anlatı ile sarar. Dönemin atmosferini yansıtan detaylı görseller ile zengin bir deneyim sunan oyun, gazete dağıtımı, lambacılık, platforming ve bulmaca çözme gibi oyun mekanikleriyle güçlendirilmiştir. Oyuncular, protagonistin mücadelelerini gözlemleyecek ve Londra’nın karanlık sırlarını açığa çıkarmak ve kaybolmuş kız kardeşi bulmak için ipuçlarını takip edecektir._
 
 ## Oyun Özellikleri
 
