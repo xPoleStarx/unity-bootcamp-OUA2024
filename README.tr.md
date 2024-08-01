@@ -15,7 +15,7 @@
 
 # Oyun Adı
 
-**Kayıp Işık**
+**Lost Light**
 
 ## Oyun Açıklaması
 
