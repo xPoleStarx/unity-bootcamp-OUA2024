@@ -1,177 +1,405 @@
-﻿using Microsoft.ML.OnnxRuntime.Tensors;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
+
     #region Serialize
+    [Header("Değerler")]
     [SerializeField] float walkSpeed = 5;
     [SerializeField] float runSpeed = 10;
-    [SerializeField] float jumpForce = 5;
     [SerializeField] float sneakSpeed = 2;
-    [SerializeField] private Transform groundCheck;
+    [SerializeField] float jumpHeight;
+    [Space(10)]
+    [Header("Gazete")]
     [SerializeField] private GameObject newspaperPrefab;
     [SerializeField] private Transform throwPoint;
     [SerializeField] private float throwForce = 10f;
     [SerializeField] private float throwHeightOffset = 1.5f;
-    [SerializeField] private GameObject cube;
+    [Space(10)]
+    [Header("İtme")]
+    [SerializeField] private LayerMask interactableLayer;
+    [SerializeField] private float interactionRange = 2f;
+    [SerializeField] private Transform interactionPoint;
+    [SerializeField] private float pushForce = 10f;
+    [SerializeField] private float pullForce = 10f;
+    [Space(3)]
+    [Header("Swim")]
+    [SerializeField] float swimSpeed = 3;
+
+    public float GetWalkSpeed() => walkSpeed;
+
+    public float GetRunSpeed() => runSpeed;
+
+    public float GetSneakSpeed() => sneakSpeed;
+
+    public float GetSwimSpeed() => swimSpeed;
+
+
     #endregion
 
+
+
+
+
+
+
     #region Variables
-    PlayerInput playerInput;
-    InputAction moveAction, runAction, jumpAction, sneakAction, throwAction, toggleLampAction, drawAction;
-    Animator anim_;
-    Rigidbody rb;
-    StreetLampController currentStreetLamp;
-
+    private PlayerInput playerInput;
+    private InputActionAsset inputActions;
+    [HideInInspector]
+    public InputAction moveAction, runAction, jumpAction, sneakAction, throwAction, toggleLampAction, pushAction, pullAction, swimAction;
+    private Animator anim_;
+    private Rigidbody rb;
+    private StreetLampController currentStreetLamp;
     private Vector2 move_Direction;
-    private IState current_State;
+    private CapsuleCollider sneakCollider;
+    private GroundCheck ground_control_;
+    private Rigidbody boxes;
 
-    private bool isWalking, isRunning, isJumping, isSneaking = false;
-    private bool isGrounded;
-    private Texture2D texture;
-    private Vector2 previousMousePosition;
-    private bool isDrawing;
-    private NumberRecognizer recognizer;
+    private float mapCode = 1;
+
+
+    public StateMachine stateMachine { get; private set; }
+    public IState idleState, walkState, runState, sneakState, jumpState, fallState, swimState;
+
+    public bool isRunning { get; set; }
+    public bool isSneaking { get; set; } = false;
+    public bool isGrounded { get; set; }
+    public bool isSwimming { get; set; } = false;
+    public bool isFalling { get; set; }
+    public bool isPushing { get; set; }
+    public bool isPulling { get; set; }
+
+
     #endregion
 
     #region Main
+
+
     private void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
         anim_ = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-        recognizer = GetComponent<NumberRecognizer>(); // NumberRecognizer bileşenini alın
-        if (recognizer == null)
-        {
-            recognizer = gameObject.AddComponent<NumberRecognizer>(); // NumberRecognizer bileşenini ekleyin
-        }
+        sneakCollider = GetComponent<CapsuleCollider>();
+        ground_control_ = GetComponent<GroundCheck>();
+
+        idleState = new IdleState(this);
+        walkState = new WalkState(this);
+        runState = new RunState(this);
+        sneakState = new SneakState(this);
+        jumpState = new JumpState(this);
+        fallState = new FallState(this);
+        swimState = new SwimState(this);
+        stateMachine = new StateMachine();
     }
+
+
+
+    public Rigidbody GetRigidbody() => rb;
+    public CapsuleCollider GetCollider() => sneakCollider;
 
     void Start()
     {
+        inputActions = playerInput.actions;
+
         moveAction = playerInput.actions.FindAction("Move");
         runAction = playerInput.actions.FindAction("Run");
         jumpAction = playerInput.actions.FindAction("Jump");
         sneakAction = playerInput.actions.FindAction("Sneak");
         throwAction = playerInput.actions.FindAction("Throw");
         toggleLampAction = playerInput.actions.FindAction("ToggleLamp");
-        drawAction = playerInput.actions.FindAction("Draw");
+        pushAction = playerInput.actions.FindAction("Push");
+        pullAction = playerInput.actions.FindAction("Pull");
+
+
+        playerInput.actions.FindActionMap("Water");
+        swimAction = playerInput.actions.FindAction("Swim");
+
+        SetInputActionMap("Movement");
 
         if (rb == null) { Debug.LogError("No Rigidbody component found on " + gameObject.name); }
         toggleLampAction.performed += ctx => ToggleNearestLamp();
 
-        texture = new Texture2D(28, 28);
-        previousMousePosition = Vector2.zero;
-        isDrawing = false;
-    }
+        interactionPoint = new GameObject("InteractionPoint").transform;
+        interactionPoint.SetParent(transform);
+        interactionPoint.localPosition = new Vector3(0, 0, 1.5f);
 
+        stateMachine.ChangeState(idleState);
+    }
     void Update()
     {
-        HandleInput();
-        MovePlayer();
-        HandleJump();
-        Look();
+        stateMachine.Update();
+        PushPullObject();
         UpdateThrowPoint();
         HandleThrow();
-        HandleDraw();
+    }
+
+
+
+
+
+    private void FixedUpdate()
+    {
+        HandleInput();
+        Ground_Control();
     }
     #endregion
 
+
     #region Functions
-    void HandleInput()
+
+    public void HandleInput()
     {
         isRunning = runAction.ReadValue<float>() > 0;
         isSneaking = sneakAction.ReadValue<float>() > 0;
 
-        if (isRunning)
+
+        if (isGrounded)
         {
-            isSneaking = false;
+            if (isRunning)
+            {
+                isSneaking = false;
+            }
+            else if (isSneaking)
+            {
+                isRunning = false;
+            }
+            else if (jumpAction.triggered && isGrounded)
+            {
+                stateMachine.ChangeState(jumpState);
+            }
+
         }
-        else if (isSneaking)
+
+        else if (isSwimming)
         {
-            isRunning = false;
+            mapCode = 2;
+            SetInputActionMap("Water");
+            stateMachine.ChangeState(swimState);
         }
+
+        else if (isFalling && rb.velocity.y < 0)
+        {
+            stateMachine.ChangeState(fallState);
+        }
+
     }
 
-    public bool IsSneaking()
-    {
-        return isSneaking;
-    }
 
-    void MovePlayer()
+    public void PushPullObject()
     {
-        Vector2 direction = moveAction.ReadValue<Vector2>();
-        float currentSpeed = walkSpeed;
-
-        if (isSneaking)
+        isPushing = pushAction.ReadValue<float>() > 0;
+        isPulling = pullAction.ReadValue<float>() > 0;
+        if (!isPushing && !isPulling)
         {
-            currentSpeed = sneakSpeed;
-        }
-        else if (isRunning)
-        {
-            currentSpeed = runSpeed;
+            return;
         }
 
-        Vector3 movement = new Vector3(-direction.x, 0, -direction.y) * currentSpeed * Time.deltaTime;
-        rb.MovePosition(transform.position + movement);
-
-        bool isMoving = movement != Vector3.zero;
-
-        anim_.SetBool("isWalking", isMoving && !isRunning && !isSneaking);
-        anim_.SetBool("isRunning", isMoving && isRunning);
-        anim_.SetBool("isSneaking", isMoving && isSneaking);
-    }
-
-    private void Look()
-    {
-        Vector2 moveInput = moveAction.ReadValue<Vector2>();
-
-        if (moveInput.sqrMagnitude > 0.1f)
+        Collider[] hitColliders = Physics.OverlapSphere(interactionPoint.position, interactionRange, interactableLayer);
+        if (hitColliders.Length > 0)
         {
-            float targetAngle = Mathf.Atan2(-moveInput.x, -moveInput.y) * Mathf.Rad2Deg;
 
-            Quaternion currentRotation = transform.rotation;
-            Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
-            transform.rotation = Quaternion.Slerp(currentRotation, targetRotation, 20f * Time.deltaTime);
+            if (boxes == null && isPushing == true)
+            {
+                boxes = hitColliders[0].GetComponent<Rigidbody>();
+                anim_.SetBool("isPushing", true);
+                MoveObject();
+            }
+            else if (boxes == null && isPulling == true)
+            {
+                boxes = hitColliders[0].GetComponent<Rigidbody>();
+                anim_.SetBool("isPulling", true);
+                MoveObject();
+            }
+            else if (boxes != null && isPushing == true)
+            {
+                anim_.SetBool("isPushing", true);
+                MoveObject();
+
+
+            }
+            else if (boxes != null && isPulling == true)
+            {
+
+                anim_.SetBool("isPulling", true);
+                MoveObject();
+
+            }
+            else if (boxes != null && isPulling == false && isPushing == false)
+            {
+                anim_.SetBool("isPushing", false);
+                anim_.SetBool("isPulling", false);
+                boxes = null;
+            }
+        }
+        boxes = null;
+
+    }
+    private void MoveObject()
+    {
+
+        Vector3 direction = (interactionPoint.position - boxes.position).normalized;
+        float distance = Vector3.Distance(interactionPoint.position, boxes.position);
+        direction.y = 0;
+
+        if (distance > 0.5f)
+        {
+            boxes.MovePosition(boxes.position + direction * walkSpeed * Time.deltaTime);
         }
         else
-            rb.angularVelocity = Vector3.zero;
+        {
+            boxes.velocity = Vector3.zero;
+        }
+        float maxSpeed = 2f;
+        if (boxes.velocity.magnitude > maxSpeed)
+        {
+            boxes.velocity = boxes.velocity.normalized * maxSpeed;
+        }
+
     }
 
-    void HandleJump()
+
+
+
+
+
+
+
+
+
+    public void MovePlayer(float speed)
     {
-        if (jumpAction.triggered && !isJumping && rb != null)
+        if (isSwimming)
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isJumping = true;
-            anim_.SetBool("isJumping", true);
+            Vector2 directionSwim = swimAction.ReadValue<Vector2>();
+            Vector3 movementSwim = speed * Time.deltaTime * new Vector3(-directionSwim.x, 0, -directionSwim.y);
+            rb.MovePosition(transform.position + movementSwim);
+
+
+            if (directionSwim.sqrMagnitude > 0.1f)
+            {
+                float targetAngle = Mathf.Atan2(-directionSwim.x, -directionSwim.y) * Mathf.Rad2Deg;
+
+                Quaternion currentRotation = transform.rotation;
+                Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
+                transform.rotation = Quaternion.Slerp(currentRotation, targetRotation, 20f * Time.deltaTime);
+            }
+            else
+                rb.angularVelocity = Vector3.zero;
+
+        }
+        else
+        {
+            Vector2 direction = moveAction.ReadValue<Vector2>();
+            Vector3 movement = speed * Time.deltaTime * new Vector3(-direction.x, 0, -direction.y);
+            rb.MovePosition(transform.position + movement);
+
+            if (direction.sqrMagnitude > 0.1f)
+            {
+                float targetAngle = Mathf.Atan2(-direction.x, -direction.y) * Mathf.Rad2Deg;
+
+                Quaternion currentRotation = transform.rotation;
+                Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
+                transform.rotation = Quaternion.Slerp(currentRotation, targetRotation, 20f * Time.deltaTime);
+            }
+            else
+                rb.angularVelocity = Vector3.zero;
+        }
+
+    }
+
+
+
+
+
+    public Animator GetAnimator() { return anim_; }
+
+    public InputAction GetMoveAction() { return moveAction; }
+
+
+    public void SetInputActionMap(string actionMapName)
+    {
+        playerInput.SwitchCurrentActionMap(actionMapName);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    void HandleThrow()
+    {
+        if (throwAction.triggered && throwPoint != null)
+        {
+            GameObject newspaper = Object_Pooler.Instance.GetPooledObject();
+
+            if (newspaper != null)
+            {
+                newspaper.transform.position = throwPoint.position;
+                newspaper.transform.rotation = throwPoint.rotation;
+                newspaper.SetActive(true);
+
+                Rigidbody newspaperRb = newspaper.GetComponent<Rigidbody>();
+
+                if (newspaperRb != null)
+                {
+                    newspaperRb.AddForce(throwPoint.forward * throwForce, ForceMode.Impulse);
+                }
+            }
+            else { Debug.LogWarning("No pooled objects available!"); }
         }
     }
+
+
+
+
+
+
 
     void UpdateThrowPoint()
     {
         if (throwPoint != null)
         {
-            throwPoint.position = transform.position + transform.forward * 1f + Vector3.up * throwHeightOffset; // 1 birim önde ve yukarıda
+            throwPoint.position = transform.position + 1f * throwHeightOffset * transform.forward + Vector3.up;
             throwPoint.rotation = transform.rotation;
         }
     }
 
-    void HandleThrow()
-    {
-        if (throwAction.triggered && newspaperPrefab != null && throwPoint != null)
-        {
-            GameObject newspaper = Instantiate(newspaperPrefab, throwPoint.position, throwPoint.rotation);
-            Rigidbody newspaperRb = newspaper.GetComponent<Rigidbody>();
-            if (newspaperRb != null)
-            {
-                newspaperRb.AddForce(throwPoint.forward * throwForce, ForceMode.Impulse);
-            }
-        }
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     void ToggleNearestLamp()
     {
@@ -195,96 +423,76 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void HandleDraw()
+
+
+
+
+
+
+
+    public void Jump()
     {
-        if (Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            isDrawing = true;
-            previousMousePosition = Mouse.current.position.ReadValue();
-        }
-
-        if (Mouse.current.leftButton.isPressed && isDrawing)
-        {
-            Vector2 currentMousePosition = Mouse.current.position.ReadValue();
-            DrawLine(previousMousePosition, currentMousePosition, Color.white);
-            previousMousePosition = currentMousePosition;
-        }
-
-        if (Mouse.current.leftButton.wasReleasedThisFrame && isDrawing)
-        {
-            isDrawing = false;
-            int number = RecognizeDrawnNumber();
-            ChangeCubeColor(number);
-            ClearTexture();
-        }
+        rb.velocity = new Vector3(rb.velocity.x, jumpHeight, rb.velocity.z);
     }
 
-    void DrawLine(Vector2 start, Vector2 end, Color color)
-    {
-        for (float t = 0.0f; t < 1.0f; t += 0.01f)
-        {
-            int x = (int)Mathf.Lerp(start.x, end.x, t);
-            int y = (int)Mathf.Lerp(start.y, end.y, t);
-            texture.SetPixel(x, y, color);
-        }
-        texture.Apply();
-    }
-
-    int RecognizeDrawnNumber()
-    {
-        Tensor<float> inputTensor = new DenseTensor<float>(new[] { 1, 1, 28, 28 });
-        for (int y = 0; y < 28; y++)
-        {
-            for (int x = 0; x < 28; x++)
-            {
-                inputTensor[0, 0, y, x] = texture.GetPixel(x, y).grayscale;
-            }
-        }
-        return recognizer.RecognizeNumber(inputTensor);
-    }
-
-    void ChangeCubeColor(int number)
-    {
-        Color color = Color.white;
-        switch (number)
-        {
-            case 1:
-                color = Color.yellow;
-                break;
-            case 2:
-                color = Color.blue;
-                break;
-            case 3:
-                color = Color.red;
-                break;
-        }
-        cube.GetComponent<Renderer>().material.color = color;
-    }
-
-    void ClearTexture()
-    {
-        Color[] clearColors = new Color[28 * 28];
-        for (int i = 0; i < clearColors.Length; i++)
-        {
-            clearColors[i] = Color.black;
-        }
-        texture.SetPixels(clearColors);
-        texture.Apply();
-    }
     #endregion
 
+
+
     #region Misc
-    void OnCollisionEnter(Collision collision)
+
+
+    private void Ground_Control()
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (ground_control_ == null)
         {
-            isJumping = false;
-            anim_.SetBool("isJumping", false);
+            Debug.LogError("GroundCheck component not found!");
+            return;
+        }
+
+        if (ground_control_._walk)
+        {
+            rb.drag = 0;
+            isGrounded = true;
+            isSwimming = false;
+            isFalling = false;
+            stateMachine.ChangeState(idleState);
+            SetInputActionMap("Movement");
+            mapCode = 1;
+
+
+        }
+        else if (ground_control_._swim)
+        {
+            isSwimming = true;
+            isGrounded = false;
+            isFalling = false;
+            stateMachine.ChangeState(swimState);
+            SetInputActionMap("Water");
+            mapCode = 2;
+
+
+        }
+        else
+        {
+            rb.drag = 1;
+            isFalling = true;
+            isGrounded = false;
+            isSwimming = false;
         }
     }
+
+
+
+
+
+
+
+
 
     void OnTriggerEnter(Collider other)
     {
+
         StreetLampController lamp = other.GetComponent<StreetLampController>();
         if (lamp != null)
         {
@@ -294,10 +502,38 @@ public class PlayerController : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
+
         if (currentStreetLamp != null && other.GetComponent<StreetLampController>() == currentStreetLamp)
         {
             currentStreetLamp = null;
         }
     }
+
+
+
+
+
+
+
+
+    public float GetMap() => mapCode;
+
+    public void CheckMap()
+    {
+        if (GetMap() == 2)
+        {
+            stateMachine.ChangeState(swimState);
+        }
+    }
+
     #endregion
+
+
+
+
+
+
 }
+
+
+

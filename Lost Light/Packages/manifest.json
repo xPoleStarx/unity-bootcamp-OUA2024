@@ -1,13 +1,13 @@
 {
   "dependencies": {
     "com.unity.ai.navigation": "1.1.5",
-    "com.unity.barracuda": "https://github.com/Unity-Technologies/barracuda-release.git",
     "com.unity.cinemachine": "2.10.1",
     "com.unity.collab-proxy": "2.4.3",
     "com.unity.feature.development": "1.0.2",
-    "com.unity.inputsystem": "1.8.2",
+    "com.unity.inputsystem": "1.7.0",
     "com.unity.render-pipelines.universal": "17.0.3",
     "com.unity.shadergraph": "17.0.3",
+    "com.unity.textmeshpro": "3.0.9",
     "com.unity.timeline": "1.8.7",
     "com.unity.ugui": "2.0.0",
     "com.unity.visualscripting": "1.9.4",

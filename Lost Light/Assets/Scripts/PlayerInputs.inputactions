@@ -15,27 +15,27 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Jump",
-                    "type": "Button",
-                    "id": "5c410655-595b-4996-bafe-bd20dfb334dd",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Run",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "182bfdeb-2617-4953-b972-188c64edf219",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "Vector2",
                     "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
+                    "interactions": "Hold",
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Sneak",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "75811897-2645-4d2e-bed7-5a6ed14e488c",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Jump",
+                    "type": "Button",
+                    "id": "5c410655-595b-4996-bafe-bd20dfb334dd",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -60,12 +60,21 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Draw",
+                    "name": "Push",
                     "type": "Value",
-                    "id": "fdadba15-504e-4ced-8afb-c81e2f8153cf",
-                    "expectedControlType": "Button",
+                    "id": "b9639b4e-2a16-4e8f-8ad3-7e16c5f8bb78",
+                    "expectedControlType": "Vector2",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Pull",
+                    "type": "Value",
+                    "id": "76c41097-9cc0-4200-a844-7c4c9fb6f5b2",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "Hold",
                     "initialStateCheck": true
                 }
             ],
@@ -149,17 +158,6 @@
                 },
                 {
                     "name": "",
-                    "id": "2965cce9-6f25-4964-9e6c-00c4211fcbef",
-                    "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "7133d4a9-8f61-4f9a-a2bc-3d717b8152c6",
                     "path": "<Keyboard>/q",
                     "interactions": "",
@@ -182,14 +180,108 @@
                 },
                 {
                     "name": "",
-                    "id": "2ae2a79a-4fd4-4b59-8bc4-8df4292cdd31",
-                    "path": "<Mouse>/leftButton",
+                    "id": "2965cce9-6f25-4964-9e6c-00c4211fcbef",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Draw",
+                    "action": "Jump",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1885db7c-965e-4ac6-8550-9c1ef4ac2616",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pull",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d44cdbea-8834-4eb5-86a1-00a01b3751e4",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Push",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Water",
+            "id": "87c8ae00-a0f8-4296-82e0-1e56d3d8a854",
+            "actions": [
+                {
+                    "name": "Swim",
+                    "type": "Value",
+                    "id": "b18588b4-45ba-47a8-b1f1-57fc4feeacad",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "2D Vector",
+                    "id": "0f67a43e-749b-4dab-ae2f-4e13bfa5b724",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Swim",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "ef0c5c5d-fcb7-41ae-aecf-1515cfe5119b",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Swim",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "6dcbc0c8-6706-4cba-93eb-a86e7399c45b",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Swim",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "1afc0795-5d39-4866-a0d2-596032a8ab62",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Swim",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "08ec49f3-0c04-4561-8e03-0bf7fa0bf6da",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Swim",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         }
